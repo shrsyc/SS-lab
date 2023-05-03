@@ -1,0 +1,54 @@
+%{
+#include<stdio.h>
+#include "y.tab.h"
+extern int yylval;
+%}
+%%
+[0-9]+ {yylval=yytext[0];
+ return NUMBER;
+ }
+[\t] ;
+\n {return 0;}
+. {return yytext[0];}
+%%
+
+%{
+#include<stdio.h>
+int k=0;
+int i;
+char sym[26];
+FILE *fp;
+%}
+%token NUMBER
+%left'+''-'
+%left'*''/'
+%nonassoc UMINUS
+%%
+state : exp {
+printf("converted postfix expression is =>");
+fp=fopen("postfix.txt","w");
+for(i=0;i<k;i++)
+{
+fprintf(fp,"%c",sym[i]);
+printf("%c",sym[i]);
+}
+fclose(fp);
+}
+;
+exp:NUMBER {$$=$1;sym[k]=(char)$$;k++;}
+|exp'+'exp {sym[k]='+';k++;}
+|exp'-'exp {sym[k]='-';k++;}
+|exp'*'exp {sym[k]='*';k++;}
+|exp'/'exp {sym[k]='/';k++;}
+;
+%%
+int yyerror(char *str)
+{
+printf("invalid character");
+}
+int main()
+{
+printf("enter expression=>");
+yyparse();
+return(0);
+}
